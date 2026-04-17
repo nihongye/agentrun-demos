@@ -8,6 +8,7 @@
 
 | 目录 | 说明 |
 |------|------|
+| [hello-world-agent](hello-world-agent/) | 最简 Agent 示例，纯对话模式，5 分钟快速上手 |
 | [agentscope-mcp](agentscope-mcp/) | AgentScope ReActAgent + 多远程 MCP 工具 AI 助手 |
 | [agentscope-skills-sandbox](agentscope-skills-sandbox/) | AgentScope + Agent Skills + All-in-One 沙箱集成 |
 | [react-with-sandbox-by-native-mcp](react-with-sandbox-by-native-mcp/) | ReActAgent 通过原生 MCP 协议连接远程沙箱 |
