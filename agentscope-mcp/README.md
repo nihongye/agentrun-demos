@@ -294,13 +294,23 @@ extra_headers={"x-agentrun-session-id": "my-debug-session-001"}
 
 ---
 
-## 打包上传部署
+## 平台部署
 
-除 Docker 镜像外，也可使用 [pack-tools](../pack-tools/) 将本项目打包为离线压缩包，通过管控台上传部署：
+### 打包模式
 
-```bash
-# 打包（交互式，按提示确认启动命令、依赖等）
-../pack-tools/pack-python.sh -s .
-```
+1. 运行打包工具，运行时选择 **Python 3.12**：
+   ```bash
+   ../pack-tools/pack-python.sh -s .
+   ```
+2. 在管控台创建 Agent，选择「上传压缩包」，上传生成的 `.tar.gz`
+3. 启动命令：`sh start.sh`
+4. HTTP 端口：`8080`
+5. 健康检查：`/health`
 
-打包完成后会生成 `agentscope-mcp-<timestamp>.tar.gz`，登录 Agent Runtime 管控台，创建 Agent 时选择「上传压缩包」即可部署。
+### 必填环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `OPENAI_API_KEY` | 模型 API Key |
+
+完整环境变量列表见上方[环境变量参考](#环境变量参考)。

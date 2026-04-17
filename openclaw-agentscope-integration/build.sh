@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/_build"
 
 # 默认值
-REGISTRY="apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun"
+REGISTRY="registry.example.com/your-namespace"
 IMAGE_NAME="openclaw-agentscope"
 TAG="latest"
 PUSH=false

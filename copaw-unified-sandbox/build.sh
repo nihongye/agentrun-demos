@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-REGISTRY="apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun"
+REGISTRY="registry.example.com/your-namespace"
 IMAGE_NAME="copaw-unified"
 TAG="latest"
 PUSH=false
