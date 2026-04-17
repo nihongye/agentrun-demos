@@ -261,13 +261,15 @@ MCPServerConfig(
 
 ---
 
-## 打包上传部署
+## 平台部署
 
-除 Docker 镜像外，也可使用 [pack-tools](../pack-tools/) 将本项目打包为离线压缩包，通过管控台上传部署：
+### 打包模式
 
-```bash
-# 打包（交互式，按提示选择启动模式、确认入口文件等）
-../pack-tools/pack-nodejs.sh -s .
-```
-
-打包完成后会生成 `code-execution-mcp-<timestamp>.tar.gz`，登录 Agent Runtime 管控台，创建 ToolServer 时选择「上传压缩包」即可部署。
+1. 运行打包工具，运行时选择 **Node.js 20**：
+   ```bash
+   ../pack-tools/pack-nodejs.sh -s .
+   ```
+2. 在管控台创建 ToolServer，选择「上传压缩包」，上传生成的 `.tar.gz`
+3. 启动命令：`sh start.sh`
+4. HTTP 端口：`80`
+5. 健康检查：`/health`

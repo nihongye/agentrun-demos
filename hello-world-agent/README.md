@@ -59,6 +59,25 @@ curl -X POST http://localhost:8080/process \
 | `HOST` | 否 | `0.0.0.0` | 监听地址 |
 | `PORT` | 否 | `8080` | 监听端口 |
 
+## 平台部署
+
+### 打包模式
+
+1. 运行打包工具，运行时选择 **Python 3.12**：
+   ```bash
+   ../pack-tools/pack-python.sh -s .
+   ```
+2. 在管控台创建 Agent，选择「上传压缩包」，上传生成的 `.tar.gz`
+3. 启动命令：`sh start.sh`
+4. HTTP 端口：`8080`
+5. 健康检查：`/health`
+
+### 必填环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `OPENAI_API_KEY` | 模型 API Key |
+
 ## 下一步
 
 在此基础上可以扩展：
