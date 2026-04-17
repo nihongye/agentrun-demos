@@ -36,7 +36,14 @@
 
 ---
 
-## 4. 敏感信息
+## 4. 依赖版本
+
+- **Python（requirements.txt）**：所有依赖必须指定最低版本，如 `agentscope>=1.0.13`，禁止无版本约束的裸包名
+- **Node.js（package.json）**：使用 `^` 范围版本，并将 `package-lock.json` 一并入库
+
+---
+
+## 5. 敏感信息
 
 ### 禁止出现
 
@@ -52,7 +59,7 @@ grep -rnE '(sk-[a-zA-Z0-9]{20,}|password\s*=\s*\S+|secret\s*=)' .
 
 ---
 
-## 5. 镜像地址
+## 6. 镜像地址
 
 - **Dockerfile FROM 基础镜像**：使用 `apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun/` 下的镜像
 - **构建脚本 DEFAULT_REGISTRY**：使用占位符 `registry.example.com/your-namespace`，支持 `-r` 参数覆盖
@@ -60,7 +67,7 @@ grep -rnE '(sk-[a-zA-Z0-9]{20,}|password\s*=\s*\S+|secret\s*=)' .
 
 ---
 
-## 6. 集成文档联动
+## 7. 集成文档联动
 
 新 demo 如对应 `agent-integration-docs/` 下的某篇文档，在该文档末尾添加：
 
@@ -80,7 +87,7 @@ Python / Node.js 代码类 demo 追加打包部署引用（框架集成类默认
 
 ---
 
-## 7. 提交前检查清单
+## 8. 提交前检查清单
 
 - [ ] 目录名为 kebab-case
 - [ ] README.md 包含：标题、目录结构、快速开始、环境变量表格
