@@ -111,8 +111,12 @@ def _build_model():
         stream = _get_env("MODEL_STREAM", "true").lower() != "false"
 
         kwargs: dict = dict(api_key=api_key, model_name=model_name, stream=stream)
+        # 默认不校验 HTTPS 证书，兼容自签证书的私有部署 LLM 服务
+        import httpx
+        client_args: dict = {"http_client": httpx.AsyncClient(verify=False)}
         if api_base:
-            kwargs["client_args"] = {"base_url": api_base}
+            client_args["base_url"] = api_base
+        kwargs["client_args"] = client_args
 
         logger.info(
             "模型配置 provider=openai model=%s api_base=%s", model_name, api_base
