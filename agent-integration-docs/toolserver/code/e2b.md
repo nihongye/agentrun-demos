@@ -21,19 +21,19 @@ export E2B_API_KEY=<your-bearer-token>
 ### Python
 
 ```bash
-pip install e2b
+pip install "e2b==2.13.0"
 ```
 
 ```python
 from e2b import Sandbox
 
-sandbox = Sandbox(template="e2b-sandbox")
+sandbox = Sandbox.create(template="e2b-sandbox")
 
 result = sandbox.commands.run("echo 'Hello from sandbox!'")
 print(result.stdout)
 
 sandbox.files.write("/home/user/test.txt", "hello world")
-print(sandbox.files.read("/home/user/test.txt"))
+print(sandbox.files.read("/home/user/test.txt"))    
 
 sandbox.kill()
 ```
