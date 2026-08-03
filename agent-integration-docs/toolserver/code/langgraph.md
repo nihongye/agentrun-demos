@@ -24,9 +24,10 @@ pip install langgraph>=0.2.0 langchain>=0.3.0 langchain-openai>=0.2.0 agentscope
 
 ## 2. 创建沙箱实例
 
-通常平台上创建的 ToolServer 使用自定义名称（如 `my-base`），与 agentscope-runtime 内置类型名称不一致，需要先注册映射：
+通常平台上创建的 ToolServer 使用自定义名称（如 `my-base`），与 agentscope-runtime 内置类型名称不一致，需要先注册映射。`bearer_token` 为**调用方自身**的身份 JWT——Agent 部署在平台上时，JWT 已由平台自动挂载到 Pod，直接读取即可：
 
 ```python
+import os
 from agentscope_runtime.sandbox.box.base import BaseSandboxAsync
 from agentscope_runtime.sandbox.enums import SandboxType
 from agentscope_runtime.sandbox.registry import SandboxRegistry
@@ -42,12 +43,22 @@ def register_custom_sandbox_type(custom_name: str, sandbox_class: type):
     SandboxRegistry._type_registry[custom_type] = sandbox_class
 
 
+def read_identity_token() -> str:
+    """读取平台挂载的身份 JWT（调用方自身凭证，详见「访问凭证」tab）"""
+    path = os.environ.get(
+        "AGENT_IDENTITY_TOKEN_PATH",
+        "/var/run/agentruntime/credentials/identity/token",
+    )
+    with open(path) as f:
+        return f.read().strip()
+
+
 # 假设平台上 ToolServer 名称为 "my-base"
 register_custom_sandbox_type("my-base", BaseSandboxAsync)
 
 sandbox = BaseSandboxAsync(
     base_url="http://sandbox-manager.example.com",
-    bearer_token="your-sandbox-manager-token",
+    bearer_token=read_identity_token(),
     sandbox_type="my-base",
 )
 ```
@@ -164,12 +175,13 @@ LangGraph + AgentScope 沙箱工具集成示例。
 
 Usage:
     export SANDBOX_MANAGER_URL=http://sandbox-manager.example.com
-    export SANDBOX_MANAGER_TOKEN=your-token
     export SANDBOX_TYPE=my-base
     export OPENAI_API_KEY=your-key
     export OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 
     python langgraph_sandbox_agent.py
+
+身份 JWT 由平台自动挂载到 Pod（$AGENT_IDENTITY_TOKEN_PATH），无需配置。
 """
 
 import asyncio
@@ -203,6 +215,16 @@ def register_custom_sandbox_type(custom_name: str, sandbox_class: type):
     SandboxType.add_member(custom_name.upper().replace("-", "_"), custom_name)
     custom_type = SandboxType(custom_name)
     SandboxRegistry._type_registry[custom_type] = sandbox_class
+
+
+def read_identity_token() -> str:
+    """读取平台挂载的身份 JWT（调用方自身凭证，详见「访问凭证」tab）"""
+    path = os.environ.get(
+        "AGENT_IDENTITY_TOKEN_PATH",
+        "/var/run/agentruntime/credentials/identity/token",
+    )
+    with open(path) as f:
+        return f.read().strip()
 
 
 # ---------------------------------------------------------------------------
@@ -254,7 +276,7 @@ async def main():
 
     sandbox = BaseSandboxAsync(
         base_url=os.environ.get("SANDBOX_MANAGER_URL", "http://localhost:8080"),
-        bearer_token=os.environ.get("SANDBOX_MANAGER_TOKEN", ""),
+        bearer_token=read_identity_token(),
         sandbox_type=sandbox_type,
     )
     await sandbox.start_async()
@@ -309,7 +331,7 @@ if __name__ == "__main__":
 | 变量 | 必填 | 说明 |
 |------|------|------|
 | `SANDBOX_MANAGER_URL` | 是 | 集群沙箱管理器地址（可从集群详情页获取） |
-| `SANDBOX_MANAGER_TOKEN` | 否 | 集群沙箱管理器访问凭证（可从集群详情页获取） |
+| `AGENT_IDENTITY_TOKEN_PATH` | 否 | 身份 JWT 文件路径，平台自动注入（默认 `/var/run/agentruntime/credentials/identity/token`），代码读取该文件作为 `bearer_token` |
 | `SANDBOX_TYPE` | 否 | ToolServer 名称，默认 `my-base` |
 | `OPENAI_API_KEY` | 是 | OpenAI API Key（或 DashScope API Key） |
 | `OPENAI_BASE_URL` | 否 | OpenAI 兼容 API 地址，如 `https://dashscope.aliyuncs.com/compatible-mode/v1` |

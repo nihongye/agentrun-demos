@@ -127,7 +127,7 @@ echo "[4/4] 构建 Docker 镜像: ${FULL_IMAGE}"
 PLATFORM_FLAG=""
 if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
   echo "  ARM 架构，拉取 amd64 基础镜像..."
-  docker pull --platform linux/amd64 node:22-slim 2>/dev/null || true
+  docker pull --platform linux/amd64 apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun/node:22-slim 2>/dev/null || true
   PLATFORM_FLAG="--platform linux/amd64"
 fi
 

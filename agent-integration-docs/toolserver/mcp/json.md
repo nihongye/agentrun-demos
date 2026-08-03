@@ -4,7 +4,9 @@
 
 ---
 
-## 配置示例
+## 配置示例（Bearer JWT）
+
+适用于平台内互调（挂载的身份 JWT）或外部应用 OAuth2 模式换取的 JWT：
 
 ```json
 {
@@ -20,6 +22,24 @@
 }
 ```
 
+## 配置示例（API Key）
+
+适用于外部应用 API Key 模式（`art_ak_` 开头，在「访问控制 → 身份管理 → 外部身份」注册获得）：
+
+```json
+{
+  "mcpServers": {
+    "{{name}}": {
+      "type": "streamable_http",
+      "url": "https://{{endpoint}}/",
+      "headers": {
+        "X-API-Key": "art_ak_YOUR_API_KEY_HERE"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ## 字段说明
@@ -28,13 +48,16 @@
 |------|--------------------------------------------------------|
 | `type` | 固定为 `streamable_http`，使用 Streamable HTTP 传输协议          |
 | `url` | ToolServer 的访问地址。平台托管的 ToolServer 默认以 `/` 作为 MCP 端点    |
-| `Authorization` | 访问凭证，格式为 `Bearer <token>`。请替换为工具设置中配置的凭证；若工具未绑定凭证则无需携带 |
+| `Authorization` | 调用方自身身份凭证（Bearer JWT），获取方式见「访问凭证」文档；与 `X-API-Key` 二选一 |
+| `X-API-Key` | 外部应用 API Key（`art_ak_` 开头）；与 `Authorization` 二选一 |
+
+> 凭证为**调用方自身**的身份凭证（非本工具绑定的凭证），且该身份需已被授予本工具的访问权限，详见「访问凭证」文档。
 
 ---
 
-## 无凭证场景
+## 匿名访问场景
 
-若工具未绑定访问凭证，省略 `headers` 即可：
+若工具访问模式为「匿名访问（AllowAnonymous）」，省略 `headers` 即可：
 
 ```json
 {

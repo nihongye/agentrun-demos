@@ -138,7 +138,8 @@ python app.py
 |------|------|--------|------|
 | `ALL_IN_ONE_SANDBOX_NAME` | 是 | `all-in-one` | 平台沙箱模板名称，与 `sandBoxTemplate.name` 对齐 |
 | `SANDBOX_MANAGER_URL` | 是* | — | 沙箱管理器地址（留空则以 embedded 模式启动本地沙箱） |
-| `SANDBOX_MANAGER_TOKEN` | 否 | — | 沙箱管理器访问凭证 |
+| `SANDBOX_MANAGER_TOKEN` | 否 | — | 沙箱管理器访问凭证（本地调试用；集群内运行时留空即自动读取平台挂载的身份 JWT） |
+| `AGENT_IDENTITY_TOKEN_PATH` | 否 | `/var/run/agentruntime/credentials/identity/token` | 平台挂载的身份 JWT 文件路径，平台自动注入，通常无需修改 |
 
 ### 服务地址
 

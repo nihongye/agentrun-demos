@@ -20,16 +20,28 @@
 
 > **前提条件**：以下示例假设你已在平台上创建了名称为 `base` 的 ToolServer（即 ToolServer 名称与 agentscope-runtime 内置的沙箱类型名称一致）。如果你的 ToolServer 使用了自定义名称（如 `my-base`），请跳过本节，直接参考后面的 [名称不一致 — 需要注册映射](#名称不一致--需要注册映射) 章节。
 
-agentscope-runtime 内置了 `BaseSandboxAsync`、`BrowserSandboxAsync` 等沙箱类，通过 `base_url` 和 `bearer_token` 连接集群的沙箱管理器（可从集群详情页获取）：
+agentscope-runtime 内置了 `BaseSandboxAsync`、`BrowserSandboxAsync` 等沙箱类，通过 `base_url` 和 `bearer_token` 连接集群的沙箱管理器。`base_url` 可从集群详情页获取；`bearer_token` 为**调用方自身**的身份 JWT——Agent 部署在平台上时，JWT 已由平台自动挂载到 Pod，直接读取即可：
 
 ```python
+import os
 from agentscope_runtime.sandbox.box.base import BaseSandboxAsync
 
+
+def read_identity_token() -> str:
+    """读取平台挂载的身份 JWT（调用方自身凭证，详见「访问凭证」tab）"""
+    path = os.environ.get(
+        "AGENT_IDENTITY_TOKEN_PATH",
+        "/var/run/agentruntime/credentials/identity/token",
+    )
+    with open(path) as f:
+        return f.read().strip()
+
+
 # base_url:     集群沙箱管理器地址（可从集群详情页获取）
-# bearer_token: 集群沙箱管理器访问凭证（可从集群详情页获取）
+# bearer_token: 调用方自身身份 JWT（平台自动挂载，无需配置）
 sandbox = BaseSandboxAsync(
     base_url="http://sandbox-manager.example.com",
-    bearer_token="your-sandbox-manager-token",
+    bearer_token=read_identity_token(),
 )
 await sandbox.start_async()
 
@@ -57,7 +69,7 @@ from agentscope_runtime.sandbox.box.base import BaseSandboxAsync
 # ToolServer 名称为 "base"，与内置 SandboxType.BASE 一致
 sandbox = BaseSandboxAsync(
     base_url="http://sandbox-manager.example.com",
-    bearer_token="your-sandbox-manager-token",
+    bearer_token=read_identity_token(),  # 定义见上方"基本用法"
     sandbox_type="base",
 )
 await sandbox.start_async()
@@ -101,7 +113,7 @@ register_custom_sandbox_type("my-base", BaseSandboxAsync)
 
 sandbox = BaseSandboxAsync(
     base_url="http://sandbox-manager.example.com",
-    bearer_token="your-sandbox-manager-token",
+    bearer_token=read_identity_token(),  # 定义见上方"基本用法"
     sandbox_type="my-base",
 )
 await sandbox.start_async()
@@ -166,7 +178,7 @@ register_custom_sandbox_type("all-in-one", AllInOneSandboxAsync)
 
 sandbox = AllInOneSandboxAsync(
     base_url="http://sandbox-manager.example.com",
-    bearer_token="your-sandbox-manager-token",
+    bearer_token=read_identity_token(),  # 定义见上方"基本用法"
     sandbox_type="all-in-one",
 )
 await sandbox.start_async()
@@ -346,7 +358,9 @@ agent = ReActAgent(
 | 变量 | 必填 | 说明 |
 |------|------|------|
 | `SANDBOX_MANAGER_URL` | 是 | 集群沙箱管理器地址（可从集群详情页获取） |
-| `SANDBOX_MANAGER_TOKEN` | 否 | 集群沙箱管理器访问凭证（可从集群详情页获取） |
+| `AGENT_IDENTITY_TOKEN_PATH` | 否 | 身份 JWT 文件路径，平台自动注入（默认 `/var/run/agentruntime/credentials/identity/token`），代码读取该文件作为 `bearer_token` |
+
+> 集群外本地调试时，可改用外部身份经 OAuth2 换取的 JWT 作为 `bearer_token`（见「访问凭证」文档）；API Key（art_ak_）不能用于 `bearer_token`，外部应用建议使用 E2B SDK（见 e2b.md）。
 
 ---
 

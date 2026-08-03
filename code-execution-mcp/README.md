@@ -38,7 +38,7 @@ python example_client.py --endpoint https://mcp.example.com/mcp --token <bearer-
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `--endpoint` | MCP 服务地址 | `$MCP_URL` 或 `http://localhost:80/mcp` |
-| `--token` | Bearer Token，附加到 `Authorization` 请求头 | 无 |
+| `--token` | 调用方自身凭证（JWT），附加到 `Authorization: Bearer`；外部身份 API Key（`art_ak_`）请改用 `X-API-Key` 头 | 无 |
 | `--session-id` | `x-agentrun-session-id` 请求头的值 | 自动生成 UUID |
 
 ## 你将学到什么

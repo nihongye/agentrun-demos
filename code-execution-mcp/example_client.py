@@ -111,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--token",
         default=None,
-        help="Bearer token for Authorization header",
+        help="调用方自身凭证（JWT），附加到 Authorization: Bearer；API Key（art_ak_）请改用 X-API-Key 头",
     )
     parser.add_argument(
         "--session-id",

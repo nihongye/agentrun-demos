@@ -70,7 +70,7 @@ if __name__ == "__main__":
     parser.add_argument("--endpoint", default=DEFAULT_ENDPOINT,
                         help=f"MCP server endpoint (default: {DEFAULT_ENDPOINT})")
     parser.add_argument("--token", default=None,
-                        help="Bearer token for Authorization header")
+                        help="调用方自身凭证（JWT），附加到 Authorization: Bearer；API Key（art_ak_）请改用 X-API-Key 头")
     parser.add_argument("--session-id", default=None, dest="session_id",
                         help="x-agentrun-session-id value (default: auto-generated UUID)")
     parser.add_argument("--insecure", "-k", action="store_true",

@@ -47,6 +47,8 @@ pip install -r requirements.txt
 
 ```bash
 export SANDBOX_MANAGER_URL=http://sandbox-manager.example.com
+# SANDBOX_MANAGER_TOKEN 可选：本地调试用外部身份 JWT；集群内运行时留空
+# 即自动读取平台挂载的身份 JWT（$AGENT_IDENTITY_TOKEN_PATH）
 export SANDBOX_MANAGER_TOKEN=your-token
 export SANDBOX_TYPE=my-base
 export OPENAI_API_KEY=your-key
@@ -67,7 +69,8 @@ python langgraph_sandbox_agent.py
 | 变量 | 必填 | 默认值 | 说明 |
 |------|------|--------|------|
 | `SANDBOX_MANAGER_URL` | 是 | `http://localhost:8080` | 沙箱管理器地址 |
-| `SANDBOX_MANAGER_TOKEN` | 否 | （空） | 沙箱管理器访问凭证 |
+| `SANDBOX_MANAGER_TOKEN` | 否 | （空） | 沙箱管理器访问凭证（本地调试用；集群内运行时留空即自动读取平台挂载的身份 JWT） |
+| `AGENT_IDENTITY_TOKEN_PATH` | 否 | `/var/run/agentruntime/credentials/identity/token` | 平台挂载的身份 JWT 文件路径，平台自动注入，通常无需修改 |
 | `SANDBOX_TYPE` | 否 | `my-base` | 平台上 ToolServer 的名称 |
 | `OPENAI_API_KEY` | 是 | — | LLM 服务 API Key |
 | `OPENAI_BASE_URL` | 否 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | OpenAI 兼容接口地址 |

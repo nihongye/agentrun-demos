@@ -27,10 +27,11 @@ Agent Skills 与 All-in-One 沙箱的集成能力。
     python app.py --port 9090
 
 环境变量（完整列表见 README.md）：
-    SANDBOX_MANAGER_URL   沙箱管理器地址（必填）
-    SANDBOX_MANAGER_TOKEN 访问凭证（必填）
-    HOST / PORT           服务监听地址/端口
-    MODEL_PROVIDER        openai | dashscope
+    SANDBOX_MANAGER_URL       沙箱管理器地址（必填）
+    SANDBOX_MANAGER_TOKEN     访问凭证（可选，本地调试用；集群内默认自动
+                              读取平台挂载的身份 JWT，见 AGENT_IDENTITY_TOKEN_PATH）
+    HOST / PORT               服务监听地址/端口
+    MODEL_PROVIDER            openai | dashscope
     OPENAI_API_KEY / DASHSCOPE_API_KEY
     MAX_ITERS / PARALLEL_TOOL_CALLS / LOG_LEVEL
 """
@@ -149,6 +150,24 @@ class SessionState:
 
 def _get_env(key: str, default: str = "") -> str:
     return os.environ.get(key, default).strip()
+
+
+def _read_identity_token() -> str:
+    """读取平台挂载的身份 JWT（调用方自身凭证，详见 access token 说明文档）。
+
+    集群内运行时平台会自动将身份 JWT 挂载到 Pod，路径由
+    AGENT_IDENTITY_TOKEN_PATH 指定（默认见下）。文件不存在（如本地调试）
+    时返回空字符串，由调用方决定回退到 SANDBOX_MANAGER_TOKEN 或匿名访问。
+    """
+    path = _get_env(
+        "AGENT_IDENTITY_TOKEN_PATH",
+        "/var/run/agentruntime/credentials/identity/token",
+    )
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return ""
 
 
 # ---------------------------------------------------------------------------
@@ -652,7 +671,9 @@ async def init_func(self):
 
     # 创建并启动 SandboxService（通过 manager session mapping 实现多副本沙箱复用）
     sandbox_manager_url = _get_env("SANDBOX_MANAGER_URL") or None
-    sandbox_token = _get_env("SANDBOX_MANAGER_TOKEN") or None
+    # 访问凭证优先级：显式配置的 SANDBOX_MANAGER_TOKEN（本地调试用外部身份 JWT）
+    # > 平台自动挂载的身份 JWT（集群内运行时的默认方式，无需手动配置）
+    sandbox_token = _get_env("SANDBOX_MANAGER_TOKEN") or _read_identity_token() or None
     self.sandbox_service = SandboxService(
         base_url=sandbox_manager_url,
         bearer_token=sandbox_token,

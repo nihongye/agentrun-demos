@@ -10,7 +10,7 @@
 |------|------|
 | **Endpoint** | Agent 的访问地址，格式为 `https://<endpoint>/compatible-mode/v1/responses` |
 | `x-agentrun-session-id` | 平台会话 ID，用于会话亲和与流量隔离。同一会话期间保持一致，可使用任意 UUID |
-| `Authorization` | 访问凭证（Bearer Token）。若 Agent 未绑定凭证，则无需携带此 Header |
+| `Authorization` | 调用方自身身份凭证（Bearer JWT），获取方式见「访问凭证」tab。匿名访问（AllowAnonymous）时无需携带；外部应用 API Key 方式请改用 `X-API-Key` 头 |
 | `input` | 对话内容（用户消息） |
 | `model` | 模型名称，可任意指定（如 `friday`） |
 | `stream` | 是否启用流式响应，`true` / `false` |
@@ -20,9 +20,9 @@
 
 ## 示例一：携带访问凭证
 
-适用于 Agent 已绑定访问凭证的场景。
+适用于需要鉴权的场景（凭证为**调用方自身**的身份凭证，非本 Agent 绑定的凭证）。
 
-> **注意**：请将 `YOUR_TOKEN_HERE` 替换为实际的访问凭证。
+> **注意**：请将 `YOUR_TOKEN_HERE` 替换为调用方自身的身份 JWT（外部应用经 OAuth2 换取 / 平台内读取挂载文件，见「访问凭证」tab）。
 
 ```bash
 curl -X POST "https://{{endpoint}}/compatible-mode/v1/responses" \
@@ -42,9 +42,9 @@ curl -X POST "https://{{endpoint}}/compatible-mode/v1/responses" \
 
 ---
 
-## 示例二：无访问凭证
+## 示例二：匿名访问
 
-适用于 Agent 未绑定访问凭证的场景，省略 `Authorization` Header 即可。
+适用于 Agent 访问模式为「匿名访问（AllowAnonymous）」的场景，省略 `Authorization` Header 即可。
 
 ```bash
 curl -X POST "https://{{endpoint}}/compatible-mode/v1/responses" \

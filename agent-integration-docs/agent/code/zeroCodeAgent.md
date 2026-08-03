@@ -104,7 +104,7 @@ from fastapi.responses import StreamingResponse
 app = FastAPI()
 
 ZERO_CODE_AGENT_URL = "https://your-zero-code-agent.example.com"
-ZERO_CODE_AGENT_TOKEN = "your-token"  # 如有访问凭证
+ZERO_CODE_AGENT_TOKEN = "your-token"  # 调用方自身身份凭证（JWT），获取方式见「访问凭证」tab
 
 
 async def proxy_to_agent(user_id: str, session_id: str, user_input: str):
@@ -223,6 +223,8 @@ Agent 执行完成后，可通过此接口下载沙箱内生成的文件（如 P
 - `path`：沙箱内文件的绝对路径（如 `/workspace/output/report.pdf`）
 - 此接口**无需** `Authorization` 请求头，token 已内含身份信息
 
+> **网关鉴权兼容说明**：通过控制台创建的零码 Agent，平台已自动将 `/download` 配置为免鉴权 URL（见「访问凭证」文档的免鉴权 URL 一节），即使 Agent 开启了网关鉴权，浏览器直链下载也不会被拦截。存量早期创建的零码 Agent 若下载链接返回 401，请在该 Agent 的「网关访问设置 → 免鉴权 URL」中手动添加 `/download`。
+
 Agent 会在回复中直接给出完整的下载链接，格式如下：
 ```
 https://{{endpoint}}/download?token=<encrypted_token>&path=/workspace/output/report.pdf
@@ -328,7 +330,7 @@ app = FastAPI(title="0码 Agent 集成服务")
 
 # ========== 配置 ==========
 ZERO_CODE_AGENT_URL = "https://your-zero-code-agent.example.com"
-ZERO_CODE_AGENT_TOKEN = "your-token"
+ZERO_CODE_AGENT_TOKEN = "your-token"  # 调用方自身身份凭证（JWT），获取方式见「访问凭证」tab
 
 # ========== 会话管理（生产环境建议使用 Redis） ==========
 sessions = {}
@@ -442,7 +444,7 @@ if __name__ == "__main__":
 | 变量 | 必填 | 说明 |
 |------|------|------|
 | `ZERO_CODE_AGENT_URL` | 是 | 0码 Agent 的访问地址 |
-| `ZERO_CODE_AGENT_TOKEN` | 否 | 0码 Agent 的访问凭证（如已绑定） |
+| `ZERO_CODE_AGENT_TOKEN` | 否 | 调用方自身身份凭证（JWT）；0码 Agent 为匿名访问（AllowAnonymous）时无需配置 |
 
 ---
 
