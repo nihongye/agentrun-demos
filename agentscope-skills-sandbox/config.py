@@ -14,7 +14,8 @@ AgentScope Skills Sandbox Demo 配置文件
 关键环境变量：
   ALL_IN_ONE_SANDBOX_NAME    平台沙箱模板名称（必填）
   SANDBOX_MANAGER_URL        沙箱管理器地址（必填）
-  SANDBOX_MANAGER_TOKEN      沙箱管理器访问凭证（可选）
+  SANDBOX_MANAGER_TOKEN      沙箱管理器访问凭证（可选，本地调试用；集群内
+                             默认自动读取平台挂载的身份 JWT）
 """
 
 import os

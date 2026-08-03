@@ -136,7 +136,7 @@ MCP_SERVERS: list[MCPServerConfig] = [
 |------|------|------|
 | `name` | str | 服务唯一标识名称，用于日志区分 |
 | `url` | str | MCP 端点 URL |
-| `token` | str | 访问凭证，以 `Authorization: Bearer <token>` 发送；留空则不添加 |
+| `token` | str | 调用方自身身份凭证（JWT），以 `Authorization: Bearer <token>` 发送；留空则不添加。外部身份 API Key（`art_ak_`）需通过 `extra_headers` 设置 `X-API-Key`，本字段不适用 |
 | `transport` | str | `streamable_http`（URL 默认路径为 `/`）或 `sse`（以 `/sse` 结尾） |
 | `timeout` | float | 单次请求超时（秒），默认 120 |
 | `sse_read_timeout` | float | SSE 读取超时（秒），默认 120 |

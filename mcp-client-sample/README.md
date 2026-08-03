@@ -22,7 +22,7 @@ pip install -r requirements.txt
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `--endpoint` | MCP 服务地址 | `$MCP_URL` 或 `http://localhost:80/mcp` |
-| `--token` | Bearer Token，附加到 `Authorization` 请求头 | 无 |
+| `--token` | 调用方自身身份凭证（平台挂载的 JWT 或外部身份 OAuth2 换取的 JWT），附加到 `Authorization` 请求头；外部身份 API Key（`art_ak_`）需改用 `X-API-Key` 头，本参数不适用 | 无 |
 | `--session-id` | `x-agentrun-session-id` 请求头的值，整个会话保持不变 | 自动生成 UUID |
 | `--insecure` / `-k` | 跳过 SSL 证书验证（自签名证书场景） | 关闭 |
 | `--host` | 覆盖 Host 请求头（代理路由场景） | 无 |

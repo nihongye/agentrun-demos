@@ -42,8 +42,11 @@ for (const file of files) {
   console.log(`Patched: ${file}`);
 }
 
-console.log(`\nDone. Patched ${patchedCount} mega chunk(s).`);
-if (patchedCount === 0) {
-  console.error("WARNING: No chunks were patched! The pattern may have changed.");
+if (patchedCount === 0 && fs.readdirSync(DIST_DIR).some(f => {
+  const s = fs.statSync(path.join(DIST_DIR, f));
+  return s.size > 3_000_000 && f.endsWith('.js');
+})) {
+  console.error("WARNING: Mega chunks exist but none matched the pattern! The pattern may have changed.");
   process.exit(1);
 }
+console.log(`\nDone. Patched ${patchedCount} mega chunk(s).`);

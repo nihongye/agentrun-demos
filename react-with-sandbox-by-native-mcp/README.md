@@ -80,7 +80,7 @@ pip install -r requirements.txt
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `--url` | 远程 MCP Server 地址（streamable-HTTP 端点），**必填** | 无 |
-| `--token` | 鉴权 token，写入 `Authorization: Bearer <token>` | 空字符串 |
+| `--token` | 调用方自身凭证（JWT），写入 `Authorization: Bearer <token>`；外部身份 API Key（`art_ak_`）请改用 `X-API-Key` 头 | 空字符串 |
 | `--provider` | 模型 provider：`openai` 或 `dashscope` | `openai` |
 | `--model` | 模型名称，与 `--provider` 搭配使用 | `qwen-plus` |
 | `--task` | 单次任务描述，不填则进入交互模式 | 无 |

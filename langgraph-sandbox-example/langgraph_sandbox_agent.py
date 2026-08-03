@@ -7,6 +7,8 @@ LangGraph + AgentScope 沙箱工具集成示例。
 
 Usage:
     export SANDBOX_MANAGER_URL=http://sandbox-manager.example.com
+    # SANDBOX_MANAGER_TOKEN 可选：本地调试用外部身份 JWT；集群内运行时留空
+    # 即自动读取平台挂载的身份 JWT（$AGENT_IDENTITY_TOKEN_PATH）
     export SANDBOX_MANAGER_TOKEN=your-token
     export SANDBOX_TYPE=my-base          # 平台上 ToolServer 的名称
     export OPENAI_API_KEY=your-key
@@ -50,6 +52,23 @@ def register_custom_sandbox_type(custom_name: str, sandbox_class: type):
     SandboxType.add_member(custom_name.upper().replace("-", "_"), custom_name)
     custom_type = SandboxType(custom_name)
     SandboxRegistry._type_registry[custom_type] = sandbox_class
+
+
+def read_identity_token() -> str:
+    """读取平台挂载的身份 JWT（调用方自身凭证，详见「访问凭证」文档）。
+
+    集群内运行时平台自动挂载，路径由 AGENT_IDENTITY_TOKEN_PATH 指定
+    （默认见下）。文件不存在（如本地调试）时返回空字符串。
+    """
+    path = os.environ.get(
+        "AGENT_IDENTITY_TOKEN_PATH",
+        "/var/run/agentruntime/credentials/identity/token",
+    )
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return ""
 
 
 # ---------------------------------------------------------------------------
@@ -101,7 +120,7 @@ async def main():
 
     sandbox = BaseSandboxAsync(
         base_url=os.environ.get("SANDBOX_MANAGER_URL", "http://localhost:8080"),
-        bearer_token=os.environ.get("SANDBOX_MANAGER_TOKEN", ""),
+        bearer_token=os.environ.get("SANDBOX_MANAGER_TOKEN", "") or read_identity_token(),
         sandbox_type=sandbox_type,
     )
     await sandbox.start_async()

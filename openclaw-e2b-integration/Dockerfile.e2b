@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun/node:22-slim
 
 WORKDIR /app
 

@@ -42,8 +42,11 @@ credentials_for_provider:
       en_US: API Key
       zh_Hans: API 密钥
     placeholder:
-      en_US: "e2b_xxx or bearer token"
-      zh_Hans: "e2b_xxx 或 bearer token"
+      en_US: "art_ak_xxx (external identity API Key)"
+      zh_Hans: "art_ak_xxx（外部身份 API Key）"
+    help:
+      en_US: "Caller's own credential: an External Identity API Key (art_ak_ prefix), registered in the platform console under Access Control → Identities → External Identity. Must be granted access to the target sandbox."
+      zh_Hans: "调用方自身凭证：外部身份 API Key（art_ak_ 开头），在管控台「访问控制 → 身份管理 → 外部身份」注册获得，且需已被授予目标沙箱的访问权限"
   default_template:
     type: text-input
     required: false

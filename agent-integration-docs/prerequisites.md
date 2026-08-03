@@ -66,25 +66,30 @@ sandbox-manager 是平台在纳管集群中自动部署的内部服务，负责�
 http://sandbox-manager-service.agent-runtime-system.svc:8000
 ```
 
-用户通常不需要直接操作 sandbox-manager，只需在 Agent 环境变量中配置 Token 即可。
+用户通常不需要直接操作 sandbox-manager，只需在 Agent 环境变量中配置访问凭证即可（见下）。
 
-### sandbox-manager Token
+### sandbox-manager 访问凭证
 
-sandbox-manager Token 用于 Agent 与 sandbox-manager 之间的鉴权。可从控制台「集群详情」页面获取。
+sandbox-manager 访问凭证用于调用方与 sandbox-manager 之间的鉴权。**这是调用方自身的身份凭证，不是绑定给某个沙箱的专属 Token**——获取方式取决于调用方所处的位置：
 
-在不同的 demo 中，这个 Token 使用不同的环境变量名，但值是同一个：
+- **平台内互调**（Agent 容器内）：平台自动挂载身份 JWT 到 Pod（`$AGENT_IDENTITY_TOKEN_PATH`），代码直接读取该文件即可，无需手动配置
+- **集群外部调用**：需先在「访问控制 → 身份管理 → 外部身份」注册一个外部身份，通过 API Key 或 OAuth2 换取的 JWT 作为凭证
+
+完整说明（两种凭证模式、如何选择、常见问题）见 [访问凭证与鉴权](common/caller-credentials.md)。
+
+在不同的 demo 中，这个凭证使用不同的环境变量名承载，但语义相同：
 
 | 环境变量名 | 使用场景 |
 |-----------|---------|
-| `E2B_API_KEY` | E2B 后端（E2B SDK 要求此变量名） |
-| `SANDBOX_MANAGER_TOKEN` | AgentScope 后端 |
+| `E2B_API_KEY` | E2B 后端（E2B SDK 要求此变量名，值为外部身份 API Key，`art_ak_` 开头） |
+| `SANDBOX_MANAGER_TOKEN` / `AGENT_IDENTITY_TOKEN_PATH` | AgentScope 后端（前者兼容旧用法直接传 JWT 字符串，后者为平台挂载 JWT 的文件路径，推荐） |
 
 ### GATEWAY_TOKEN
 
 GATEWAY_TOKEN 是 Agent 自身的网关鉴权令牌，用于保护 Agent 的 HTTP 端点（如 `/v1/chat/completions`）。客户端调用 Agent 时需在 `Authorization: Bearer <token>` 中携带此值。
 
-它与 sandbox-manager Token 是两个独立的凭证，方向不同：
-- **sandbox-manager Token**：Agent → sandbox-manager，用于创建和操作沙箱
+它与 sandbox-manager 访问凭证是两个独立的凭证，方向不同：
+- **sandbox-manager 访问凭证**：Agent（调用方）→ sandbox-manager，用于创建和操作沙箱
 - **GATEWAY_TOKEN**：客户端 → Agent，用于访问 Agent 的 API
 
 ---

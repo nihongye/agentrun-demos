@@ -114,13 +114,10 @@ bash build.sh
 |------|------|--------|------|
 | `SANDBOX_MANAGER_API_URL` | 是 | - | sandbox-manager 的 E2B 兼容 API 地址 |
 | `SANDBOX_DATA_PLANE_URL` | 是 | - | sandbox-manager 数据面地址（Connect RPC） |
-| `API_KEY` | 是 | - | sandbox-manager 的 `bearer_token` |
+| `API_KEY` | 是 | - | 调用方自身凭证：外部身份 API Key（`art_ak_` 开头） |
 | `DEFAULT_TEMPLATE_ID` | 否 | `e2b-sandbox` | 默认沙箱模板名称（即 ToolServer 名称） |
 
-> **获取 API Key**：
-> ```bash
-> kubectl get configmap sandbox-manager-config -n <namespace> -o yaml | grep bearer_token
-> ```
+> **获取 API Key**：Dify 运行在集群外，无法使用平台自动挂载的身份 JWT，需要在管控台「访问控制 → 身份管理 → 外部身份」注册一个外部身份（鉴权方式选 API Key），并确保该身份已被授予目标沙箱 ToolServer 的访问权限（访问控制 → 角色管理）。完整说明见 [访问凭证与鉴权](https://github.com/cloudapp-suites/agentrun-demos/blob/main/agent-integration-docs/common/caller-credentials.md)。
 
 ## 工具列表
 

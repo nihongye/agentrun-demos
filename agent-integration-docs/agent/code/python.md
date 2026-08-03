@@ -15,7 +15,10 @@ import uuid
 # ⚠️  请替换为实际的 Agent Endpoint 地址
 ENDPOINT = "https://{{endpoint}}"
 
-# ⚠️  如 Agent 绑定了访问凭证，请替换为实际 Token；未绑定则设为 None
+# ⚠️  访问凭证：调用方自身身份凭证（非本 Agent 绑定的凭证），获取方式见「访问凭证」tab
+#     - 外部应用：OAuth2 换取的 JWT（API Key 方式请改用 X-API-Key 请求头）
+#     - 平台内互调：读取 $AGENT_IDENTITY_TOKEN_PATH 文件中平台自动挂载的 JWT
+#     - 本 Agent 为匿名访问（AllowAnonymous）时设为 None
 TOKEN = "YOUR_TOKEN_HERE"
 
 # 会话 ID：同一会话期间保持一致，用于会话亲和与流量隔离
@@ -38,7 +41,7 @@ import uuid
 from openai import OpenAI
 
 ENDPOINT = "https://{{endpoint}}"
-TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 替换为实际 Token，无凭证时改为 "dummy"
+TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 调用方自身凭证（JWT），见「访问凭证」tab；匿名访问时改为 "dummy"
 SESSION_ID = str(uuid.uuid4())
 
 client = OpenAI(
@@ -90,7 +93,7 @@ from a2a.client.helpers import create_text_message_object
 from a2a.types import TaskStatusUpdateEvent, Message as A2AMessage, TextPart
 
 ENDPOINT = "https://{{endpoint}}"
-TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 替换为实际 Token，无凭证时删除 Authorization header
+TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 调用方自身凭证（JWT），见「访问凭证」tab；匿名访问时删除 Authorization header
 SESSION_ID = str(uuid.uuid4())
 
 
@@ -154,7 +157,7 @@ import uuid
 import requests
 
 ENDPOINT = "https://{{endpoint}}"
-TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 替换为实际 Token，无凭证时删除 Authorization header
+TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 调用方自身凭证（JWT），见「访问凭证」tab；匿名访问时删除 Authorization header
 SESSION_ID = str(uuid.uuid4())
 
 headers = {
@@ -221,7 +224,7 @@ import uuid
 import requests
 
 ENDPOINT = "https://{{endpoint}}"
-TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 替换为实际 Token，无凭证时删除 Authorization header
+TOKEN = "YOUR_TOKEN_HERE"   # ⚠️ 调用方自身凭证（JWT），见「访问凭证」tab；匿名访问时删除 Authorization header
 SESSION_ID = str(uuid.uuid4())
 
 # agentscope-runtime 框架默认端点为 /process，0码 Agent 端点为 /

@@ -43,8 +43,12 @@ class MCPServerConfig:
         name:        服务的唯一标识名称，用于日志和区分。
         url:         MCP 服务端点 URL，streamable-HTTP 协议端点默认路径为
                      ``/``，SSE 协议端点通常以 ``/sse`` 结尾。
-        token:       访问凭证，以 ``Authorization: Bearer <token>`` 形式
-                     附加到每次请求头中。留空则不添加鉴权头。
+        token:       调用方自身身份凭证（非本服务绑定的凭证），以
+                     ``Authorization: Bearer <token>`` 形式附加到每次请求头
+                     中。留空则不添加鉴权头。平台内互调可用挂载的身份 JWT，
+                     外部应用可用 OAuth2 换取的 JWT；若目标服务要求 API Key
+                     （``art_ak_`` 开头），需通过 extra_headers 设置
+                     ``X-API-Key``，本字段不适用。
         transport:   传输协议，可选 ``streamable_http`` 或 ``sse``。
                      默认 ``streamable_http``。
         timeout:     单次请求超时（秒），默认 120。

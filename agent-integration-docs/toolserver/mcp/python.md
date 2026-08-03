@@ -15,7 +15,10 @@ import uuid
 # ⚠️ 请替换为实际的 ToolServer 访问地址
 ENDPOINT = "https://{{endpoint}}/"
 
-# ⚠️ 如工具绑定了访问凭证，请替换为实际 Token；未绑定则设为 None
+# ⚠️ 访问凭证：调用方自身身份凭证（非本工具绑定的凭证），获取方式见「访问凭证」tab
+#     - 外部应用：OAuth2 换取的 JWT（API Key 方式请将 headers 改为 X-API-Key）
+#     - 平台内互调：读取 $AGENT_IDENTITY_TOKEN_PATH 文件中平台自动挂载的 JWT
+#     - 本工具为匿名访问（AllowAnonymous）时设为 None
 TOKEN = "YOUR_TOKEN_HERE"
 
 # 平台会话 ID：同一会话期间保持一致，用于会话亲和与流量路由

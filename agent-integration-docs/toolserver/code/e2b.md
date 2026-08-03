@@ -13,27 +13,28 @@ E2B SDK 默认连接官方云服务，通过环境变量即可切换到平台自
 ```bash
 export E2B_API_URL=http://<sandbox-manager-address>/e2b      # 管控面（沙箱 CRUD）
 export E2B_SANDBOX_URL=http://<sandbox-manager-address>       # 数据面（代码执行、文件操作）
-export E2B_API_KEY=<your-bearer-token>
+export E2B_API_KEY=<调用方自身凭证：外部身份 API Key（art_ak_...）>
 ```
 
-> 域名和 Token 从控制台「集群详情」页面获取。管控面和数据面必须同时配置。
+> - 域名从控制台「集群详情」页面获取，管控面和数据面必须同时配置。
+> - `E2B_API_KEY` 为**调用方自身**的身份凭证：在「访问控制 → 身份管理 → 外部身份」注册身份（API Key 模式）获得，且该身份需已被授予沙箱服务的访问权限，详见「访问凭证」文档。
 
 ### Python
 
 ```bash
-pip install "e2b==2.13.0"
+pip install e2b
 ```
 
 ```python
 from e2b import Sandbox
 
-sandbox = Sandbox.create(template="e2b-sandbox")
+sandbox = Sandbox(template="e2b-sandbox")
 
 result = sandbox.commands.run("echo 'Hello from sandbox!'")
 print(result.stdout)
 
 sandbox.files.write("/home/user/test.txt", "hello world")
-print(sandbox.files.read("/home/user/test.txt"))    
+print(sandbox.files.read("/home/user/test.txt"))
 
 sandbox.kill()
 ```
@@ -66,8 +67,6 @@ await sandbox.kill();
 
 | 变量 | 说明                                                                       |
 |------|--------------------------------------------------------------------------|
-| `E2B_API_URL` | 管控面地址                                                                    |
-| `E2B_SANDBOX_URL` | 数据面地址 |
-| `E2B_API_KEY` | sandbox-manager Bearer Token                                             |
-
-> 可从集群详情页获取
+| `E2B_API_URL` | 管控面地址（集群详情页获取）                                                    |
+| `E2B_SANDBOX_URL` | 数据面地址（集群详情页获取） |
+| `E2B_API_KEY` | 调用方自身凭证：外部身份 API Key（art_ak_），「访问控制 → 身份管理」注册获得 |

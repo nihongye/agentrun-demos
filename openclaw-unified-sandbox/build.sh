@@ -24,7 +24,7 @@ PUSH=false
 CLONE_MODE=false
 SKIP_CLONE=false
 OPENCLAW_SRC="${OPENCLAW_SRC:-${SCRIPT_DIR}/../openclaw}"
-OPENCLAW_REPO="${OPENCLAW_REPO:-https://github.com/openclaw-ai/openclaw.git}"
+OPENCLAW_REPO="${OPENCLAW_REPO:-https://github.com/openclaw/openclaw.git}"
 OPENCLAW_REF="${OPENCLAW_REF:-main}"
 
 # 现有集成目录（只读引用）
@@ -65,7 +65,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # 验证现有集成目录存在
 echo ""
-echo "[0/5] 验证依赖目录..."
+echo "[0/6] 验证依赖目录..."
 [[ -d "${E2B_INTEGRATION}/e2b-sandbox-plugin" ]] || { echo "错误: ${E2B_INTEGRATION}/e2b-sandbox-plugin/ 不存在"; exit 1; }
 [[ -d "${AS_INTEGRATION}/agentscope-sandbox-plugin" ]] || { echo "错误: ${AS_INTEGRATION}/agentscope-sandbox-plugin/ 不存在"; exit 1; }
 [[ -f "${E2B_INTEGRATION}/patch-sandbox-map.mjs" ]] || { echo "错误: patch-sandbox-map.mjs 不存在"; exit 1; }
@@ -74,38 +74,76 @@ echo "  ✓ AgentScope 插件目录存在"
 echo "  ✓ patch-sandbox-map.mjs 存在"
 
 if [[ "$CLONE_MODE" == "true" ]]; then
-  # ── Clone 模式 ──
+  # ── Clone 模式: clone → 复制插件 → 构建 ──
   if [[ "$SKIP_CLONE" != "true" ]]; then
     echo ""
-    echo "[1/5] Clone OpenClaw..."
+    echo "[1/6] Clone OpenClaw..."
     rm -rf "${BUILD_DIR}/openclaw"
     mkdir -p "${BUILD_DIR}"
-    git clone --depth 1 --branch "${OPENCLAW_REF}" "${OPENCLAW_REPO}" "${BUILD_DIR}/openclaw"
+    git -c credential.helper= clone --depth 1 --branch "${OPENCLAW_REF}" "${OPENCLAW_REPO}" "${BUILD_DIR}/openclaw"
   else
     echo ""
-    echo "[1/5] 跳过 clone，使用: ${BUILD_DIR}/openclaw"
+    echo "[1/6] 跳过 clone，使用: ${BUILD_DIR}/openclaw"
     [[ -d "${BUILD_DIR}/openclaw" ]] || { echo "错误: 目录不存在"; exit 1; }
   fi
   OPENCLAW_DIR="${BUILD_DIR}/openclaw"
-
-  echo "[2/5] 构建 OpenClaw..."
-  (cd "${OPENCLAW_DIR}" && npm install && npm run build)
-  (cd "${OPENCLAW_DIR}" && node scripts/ui.js build)
 else
   # ── 本地模式 ──
   OPENCLAW_DIR="$(cd "${OPENCLAW_SRC}" && pwd)"
   echo ""
-  echo "[1/5] 使用本地 OpenClaw: ${OPENCLAW_DIR}"
-  [[ -d "${OPENCLAW_DIR}/dist" ]] || { echo "错误: dist/ 不存在，请先构建 OpenClaw"; exit 1; }
-  echo "[2/5] 跳过构建（本地模式）"
+  echo "[1/6] 使用本地 OpenClaw: ${OPENCLAW_DIR}"
 fi
 
-# ── Step 3: 安装两个插件到构建上下文 ──
+# ── Step 2: 构建 E2B SDK 并安装到 node_modules ──
 echo ""
-echo "[3/5] 安装两个沙箱插件..."
+echo "[2/6] 构建 E2B SDK..."
 
-# E2B 插件 — 源码复制到 extensions/，编译结果在 dist/extensions/
+E2B_SDK_DIR=""
+WORKSPACE_E2B="$(cd "${SCRIPT_DIR}/../.." && pwd)/E2B/packages/js-sdk"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+if [[ -d "${WORKSPACE_E2B}" ]]; then
+  echo "  使用 workspace 中的 E2B SDK: ${WORKSPACE_E2B}"
+  E2B_SDK_DIR="${WORKSPACE_E2B}"
+else
+  echo "  ⚠ workspace 中未找到 E2B SDK"
+  echo ""
+  echo "  获取方式:"
+  echo "    git clone https://github.com/e2b-dev/E2B.git ${ROOT_DIR}/E2B --depth 1"
+  echo ""
+  echo "  克隆后 E2B SDK 路径: ${WORKSPACE_E2B}"
+  echo ""
+  read -r -p "  已有 E2B SDK？输入路径 (或直接回车跳过 e2b 插件): " user_path
+  if [[ -n "${user_path}" ]]; then
+    if [[ -d "${user_path}" ]]; then
+      E2B_SDK_DIR="${user_path}"
+      echo "  使用: ${E2B_SDK_DIR}"
+    else
+      echo "  路径无效，跳过 E2B SDK (e2b 插件将不可用)"
+    fi
+  else
+    echo "  已跳过 E2B SDK (e2b 插件将不可用)"
+  fi
+fi
+
+if [[ -n "${E2B_SDK_DIR}" ]]; then
+  echo "  构建 E2B SDK..."
+  (cd "${E2B_SDK_DIR}" && npm install --legacy-peer-deps 2>/dev/null && npm run build) || {
+    echo "  警告: E2B SDK 构建失败，尝试继续..."
+  }
+  echo "  复制 E2B SDK 到 OpenClaw node_modules..."
+  mkdir -p "${OPENCLAW_DIR}/node_modules/e2b"
+  cp -r "${E2B_SDK_DIR}/dist" "${OPENCLAW_DIR}/node_modules/e2b/"
+  cp "${E2B_SDK_DIR}/package.json" "${OPENCLAW_DIR}/node_modules/e2b/"
+  echo "  ✓ E2B SDK 已安装到 node_modules/e2b/"
+fi
+
+# ── Step 3: 安装两个插件到 extensions/ ──
+echo ""
+echo "[3/6] 安装两个沙箱插件..."
+
+# E2B 插件
 echo "  复制 E2B 插件..."
+rm -rf "${OPENCLAW_DIR}/extensions/e2b-sandbox"
 mkdir -p "${OPENCLAW_DIR}/extensions/e2b-sandbox"
 cp -r "${E2B_INTEGRATION}/e2b-sandbox-plugin/"* "${OPENCLAW_DIR}/extensions/e2b-sandbox/"
 if [[ "$CLONE_MODE" == "true" ]]; then
@@ -114,17 +152,27 @@ fi
 
 # AgentScope 插件
 echo "  复制 AgentScope 插件..."
+rm -rf "${OPENCLAW_DIR}/extensions/agentscope-sandbox"
 mkdir -p "${OPENCLAW_DIR}/extensions/agentscope-sandbox"
 cp -r "${AS_INTEGRATION}/agentscope-sandbox-plugin/"* "${OPENCLAW_DIR}/extensions/agentscope-sandbox/"
+
+# ── Step 4: 构建 OpenClaw（含插件） ──
+echo ""
+echo "[4/6] 构建 OpenClaw（含插件）..."
 if [[ "$CLONE_MODE" == "true" ]]; then
+  (cd "${OPENCLAW_DIR}" && npm install && npm run build)
+  (cd "${OPENCLAW_DIR}" && node scripts/ui.js build)
+  # AgentScope 插件后处理
   if [[ -f "${OPENCLAW_DIR}/extensions/agentscope-sandbox/build-plugin.mjs" ]]; then
     (cd "${OPENCLAW_DIR}" && node extensions/agentscope-sandbox/build-plugin.mjs) || true
   fi
+else
+  (cd "${OPENCLAW_DIR}" && pnpm build && pnpm ui:build)
 fi
 
-# ── Step 4: 复制构建辅助文件 ──
+# ── Step 5: 复制构建辅助文件 ──
 echo ""
-echo "[4/5] 复制构建辅助文件..."
+echo "[5/6] 复制构建辅助文件..."
 
 # patch 脚本 — 使用统一增强版（扫描 dist/ 顶层 + plugin-sdk/ 子目录）
 cp "${SCRIPT_DIR}/patch-sandbox-map-unified.mjs" "${OPENCLAW_DIR}/patch-sandbox-map-unified.mjs"
@@ -185,14 +233,14 @@ echo "  ✓ e2b-exec.mjs + agentscope-exec.mjs"
 echo "  ✓ 两个配置模板"
 echo "  ✓ entrypoint.sh"
 
-# ── Step 5: 构建 Docker 镜像 ──
+# ── Step 6: 构建 Docker 镜像 ──
 echo ""
-echo "[5/5] 构建 Docker 镜像: ${FULL_IMAGE}"
+echo "[6/6] 构建 Docker 镜像: ${FULL_IMAGE}"
 
 PLATFORM_FLAG=""
 if [[ "$(uname -m)" == "arm64" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
   echo "  ARM 架构，拉取 amd64 基础镜像..."
-  docker pull --platform linux/amd64 node:22-slim 2>/dev/null || true
+  docker pull --platform linux/amd64 apaas-registry.cn-hangzhou.cr.aliyuncs.com/agentrun/node:22-slim 2>/dev/null || true
   PLATFORM_FLAG="--platform linux/amd64"
 fi
 

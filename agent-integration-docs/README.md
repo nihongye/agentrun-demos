@@ -2,7 +2,7 @@
 
 Agent Runtime 平台的集成文档，涵盖 Agent 和 ToolServer 的接入方式。
 
-> 建议先阅读 [预备知识](prerequisites.md) 了解平台核心概念。
+> 建议先阅读 [预备知识](prerequisites.md) 了解平台核心概念，以及 [访问凭证与鉴权](common/caller-credentials.md) 了解如何获取和携带凭证。
 >
 > 完整 Demo 与源码：[github.com/cloudapp-suites/agentrun-demos](https://github.com/cloudapp-suites/agentrun-demos)
 

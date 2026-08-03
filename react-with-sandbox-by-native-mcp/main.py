@@ -250,7 +250,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--token",
         default=DEFAULT_TOKEN,
-        help="鉴权 token（写入 Authorization: Bearer <token>）",
+        help="调用方自身凭证（JWT），写入 Authorization: Bearer <token>；外部身份 API Key（art_ak_）请改用 X-API-Key 头",
     )
     p.add_argument(
         "--provider",

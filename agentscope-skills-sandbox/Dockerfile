@@ -53,7 +53,7 @@ ENV DASHSCOPE_MODEL_NAME=qwen-plus
 
 # 沙箱管理器配置
 # ENV SANDBOX_MANAGER_URL=  # 必填，请通过 -e 传入
-# ENV SANDBOX_MANAGER_TOKEN=  # 可选，请通过 -e 传入
+# ENV SANDBOX_MANAGER_TOKEN=  # 可选，本地调试用；集群内留空即自动读取平台挂载的身份 JWT
 
 # Agent 行为
 ENV MAX_ITERS=20 \
